@@ -106,7 +106,7 @@ Projeyi test etmek için `240201025/Samples` klasöründe 4 farklı JSON dosyas�
 * `simple.json`: Tek seviyeli, temel alanları içeren basit yapı.
 * `nested.json`: İç içe geçmiş nesneler ve ürün dizisi içeren sipariş modeli.
 * `complex.json`: Fakülte, öğretim üyeleri, dersler ve öğrenciler gibi çok katmanlı yapı.
-* `data.json`: ~14 MB boyutunda, 8.000'den fazla mobil cihaz kaydı ve derinlemesine iç içe geçmiş teknik özellik (`specs`) nesneleri barındıran gerçek dünya büyük veri seti (toplu ekleme performansı ve düzleştirme testi için).
+* `data.json`: ~14 MB boyutunda, 8.000'den fazla mobil cihaz kaydı ve iç içe geçmiş teknik özellik (`specs`) nesneleri barındıran gerçek büyük veri seti (toplu ekleme performansı ve düzleştirme testi için).
 
 ---
 
