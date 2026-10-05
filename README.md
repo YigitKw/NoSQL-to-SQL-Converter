@@ -1,5 +1,7 @@
 # NoSQL (JSON) -> SQL Converter
 
+**[🇬🇧 English](README.md) | [🇹🇷 Türkçe](README.tr.md)**
+
 A Windows Forms desktop application that parses JSON documents and imports them into a relational SQLite database. It flattens nested objects into parent table columns and normalizes arrays into separate child tables with foreign key relationships.
 
 ---
@@ -99,11 +101,12 @@ Let **N** be the total count of JSON tokens/nodes in the document, and **M** be 
 
 ## Test Files (`240201025/Samples/`)
 
-The `240201025/Samples` folder includes three test cases:
+The `240201025/Samples` folder includes four test cases:
 
 * `simple.json`: Single-level object with primitive values.
 * `nested.json`: Nested objects and an items array (order model).
 * `complex.json`: Multi-level structure with departments, instructors, courses, and students.
+* `data.json`: Large real-world benchmark dataset (~14 MB, 8,000+ mobile device entries) with deeply nested specifications (`specs`) objects (ideal for stress-testing bulk inserts, schema flattening, and memory performance).
 
 ---
 

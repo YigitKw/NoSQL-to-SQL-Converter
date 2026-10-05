@@ -1,5 +1,7 @@
 # NoSQL (JSON) -> SQL Dönüştürücü
 
+**[🇹🇷 Türkçe](README.tr.md) | [🇬🇧 English](README.md)**
+
 Bu uygulama, herhangi bir JSON belgesini çözümleyip ilişkisel bir SQLite veritabanına aktaran Windows Forms masaüstü uygulamasıdır. İç içe nesneleri düzleştirerek ana tabloya ekler, dizi (liste) yapılarını ise 1:N ilişkili alt tablolara ayırarak birbirine bağlar.
 
 ---
@@ -99,11 +101,12 @@ JSON belgesindeki toplam düğüm sayısı **N**, oluşturulan ilişkisel satır
 
 ## Test Verileri (`240201025/Samples/`)
 
-Projeyi test etmek için `240201025/Samples` klasöründe 3 farklı JSON dosyası bulunuyor:
+Projeyi test etmek için `240201025/Samples` klasöründe 4 farklı JSON dosyası bulunuyor:
 
 * `simple.json`: Tek seviyeli, temel alanları içeren basit yapı.
 * `nested.json`: İç içe geçmiş nesneler ve ürün dizisi içeren sipariş modeli.
 * `complex.json`: Fakülte, öğretim üyeleri, dersler ve öğrenciler gibi çok katmanlı yapı.
+* `data.json`: ~14 MB boyutunda, 8.000'den fazla mobil cihaz kaydı ve derinlemesine iç içe geçmiş teknik özellik (`specs`) nesneleri barındıran gerçek dünya büyük veri seti (toplu ekleme performansı ve düzleştirme testi için).
 
 ---
 
