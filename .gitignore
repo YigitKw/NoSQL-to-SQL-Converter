@@ -1,0 +1,25 @@
+## [Visual Studio / .NET]
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.docstates
+
+## [Build and Test Output]
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+## [SQLite Database Files]
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+## [OS Generated]
+.DS_Store
+Thumbs.db
+desktop.ini

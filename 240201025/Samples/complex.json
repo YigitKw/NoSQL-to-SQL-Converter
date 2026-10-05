@@ -1,0 +1,53 @@
+[
+  {
+    "bolum_id": 1,
+    "bolum_adi": "Bilgisayar Mühendisliği",
+    "universite": {
+      "isim": "Kocaeli Üniversitesi",
+      "sehir": "Kocaeli",
+      "kuruluş_yili": 1992
+    },
+    "ogretim_uyeler": [
+      {
+        "tc": "11111111111",
+        "ad": "Prof. Dr. Mehmet",
+        "soyad": "Demir",
+        "unvan": "Profesör",
+        "dersler": [
+          { "ders_kodu": "BIL101", "ders_adi": "Programlamaya Giriş", "kredi": 4 },
+          { "ders_kodu": "BIL305", "ders_adi": "Algoritmalar", "kredi": 3 }
+        ]
+      },
+      {
+        "tc": "22222222222",
+        "ad": "Doç. Dr. Fatma",
+        "soyad": "Çelik",
+        "unvan": "Doçent",
+        "dersler": [
+          { "ders_kodu": "BIL201", "ders_adi": "Veri Yapıları", "kredi": 4 }
+        ]
+      }
+    ],
+    "ogrenciler": [
+      {
+        "ogrenci_no": "21360001",
+        "ad": "Kemal",
+        "soyad": "Arslan",
+        "sinif": 3,
+        "notlar": [
+          { "ders_kodu": "BIL101", "not": 85, "harf": "BA" },
+          { "ders_kodu": "BIL201", "not": 92, "harf": "AA" }
+        ]
+      },
+      {
+        "ogrenci_no": "21360002",
+        "ad": "Selin",
+        "soyad": "Öztürk",
+        "sinif": 2,
+        "notlar": [
+          { "ders_kodu": "BIL101", "not": 78, "harf": "BB" }
+        ]
+      }
+    ]
+  }
+]

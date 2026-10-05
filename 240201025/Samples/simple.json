@@ -1,0 +1,8 @@
+{
+  "ogrenci_id": 1001,
+  "ad": "Ali",
+  "soyad": "Yılmaz",
+  "yas": 21,
+  "aktif": true,
+  "gpa": 3.75
+}

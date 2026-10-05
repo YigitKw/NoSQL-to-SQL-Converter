@@ -1,0 +1,20 @@
+{
+  "siparis_id": 5001,
+  "tarih": "2024-03-15",
+  "musteri": {
+    "ad": "Ayşe",
+    "soyad": "Kaya",
+    "email": "ayse@ornek.com",
+    "adres": {
+      "sehir": "İstanbul",
+      "ilce": "Kadıköy",
+      "posta_kodu": "34710"
+    }
+  },
+  "urunler": [
+    { "urun_adi": "Laptop", "miktar": 1, "fiyat": 45000.00 },
+    { "urun_adi": "Mouse", "miktar": 2, "fiyat": 350.00 },
+    { "urun_adi": "Klavye", "miktar": 1, "fiyat": 800.00 }
+  ],
+  "toplam": 46500.00
+}
