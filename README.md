@@ -106,7 +106,7 @@ The `240201025/Samples` folder includes four test cases:
 * `simple.json`: Single-level object with primitive values.
 * `nested.json`: Nested objects and an items array (order model).
 * `complex.json`: Multi-level structure with departments, instructors, courses, and students.
-* `data.json`: Large real-world benchmark dataset (~14 MB, 8,000+ mobile device entries) with deeply nested specifications (`specs`) objects (ideal for stress-testing bulk inserts, schema flattening, and memory performance).
+* `data.json`: Large real-world benchmark dataset (~14 MB, 8,000+ mobile device entries) with nested specifications (`specs`) objects (ideal for stress-testing bulk inserts, schema flattening, and memory performance).
 
 ---
 
