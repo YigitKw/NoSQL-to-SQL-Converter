@@ -24,6 +24,8 @@ namespace Proje3
         private Button _buttonConvert = null!;
         private Button _buttonResetDatabase = null!;
         private Label _labelFileStatus = null!;
+        private Button _buttonLanguageToggle = null!;
+        private bool _isEnglish = false;
 
         private Panel _panelLeftContainer = null!;
         private Label _labelJsonTreeHeader = null!;
@@ -82,8 +84,8 @@ namespace Proje3
         {
             using var fileDialog = new OpenFileDialog
             {
-                Title = "JSON Dosyası Seç",
-                Filter = "JSON Dosyaları (*.json)|*.json|Tüm Dosyalar (*.*)|*.*"
+                Title = _isEnglish ? "Select JSON File" : "JSON Dosyası Seç",
+                Filter = _isEnglish ? "JSON Files (*.json)|*.json|All Files (*.*)|*.*" : "JSON Dosyaları (*.json)|*.json|Tüm Dosyalar (*.*)|*.*"
             };
             if (fileDialog.ShowDialog() != DialogResult.OK) return;
 
@@ -258,7 +260,10 @@ namespace Proje3
             string rawQueryText = _textBoxSqlEditor.Text.Trim();
             if (string.IsNullOrEmpty(rawQueryText))
             {
-                MessageBox.Show("Lütfen bir SQL sorgusu girin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(
+                    _isEnglish ? "Please enter an SQL query." : "Lütfen bir SQL sorgusu girin.",
+                    _isEnglish ? "Warning" : "Uyarı",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -285,7 +290,8 @@ namespace Proje3
                     DataGridView queryResultGrid;
                     if (queryResultTabPage == null)
                     {
-                        queryResultTabPage = new TabPage("Sorgu Sonucu") { Name = "tabQueryResult" };
+                        string queryTabTitle = _isEnglish ? "Query Result" : "Sorgu Sonucu";
+                        queryResultTabPage = new TabPage(queryTabTitle) { Name = "tabQueryResult" };
                         queryResultGrid = CreateStyledDataGrid();
                         queryResultTabPage.Controls.Add(queryResultGrid);
                         _tabControlTables.TabPages.Add(queryResultTabPage);
@@ -314,13 +320,15 @@ namespace Proje3
         private void ButtonReset_Click(object? sender, EventArgs eventArgs)
         {
             var confirmationResult = MessageBox.Show(
-                "Tüm tablolar silinecek ve veritabanı sıfırlanacak.\nDevam etmek istiyor musunuz?",
-                "Sıfırla", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                _isEnglish
+                    ? "All tables will be deleted and the database will be reset.\nDo you want to continue?"
+                    : "Tüm tablolar silinecek ve veritabanı sıfırlanacak.\nDevam etmek istiyor musunuz?",
+                _isEnglish ? "Reset" : "Sıfırla", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
             if (confirmationResult != DialogResult.Yes) return;
 
             Log("──────────────────────────────────", Color.Gray);
-            Log("[BILGI] Sıfırlama başlıyor...", Color.Cyan);
+            Log(_isEnglish ? "[INFO] Reset started..." : "[BILGI] Sıfırlama başlıyor...", Color.Cyan);
 
             try
             {
@@ -332,8 +340,8 @@ namespace Proje3
                 _treeViewJsonStructure.Nodes.Clear();
                 _buttonConvert.Enabled = false;
                 _buttonConvert.Tag = null;
-                _labelFileStatus.Text = "Dosya seçilmedi";
-                Log("[OK] Sıfırlama tamamlandı.", Color.LimeGreen);
+                _labelFileStatus.Text = _isEnglish ? "No file selected" : "Dosya seçilmedi";
+                Log(_isEnglish ? "[OK] Reset completed." : "[OK] Sıfırlama tamamlandı.", Color.LimeGreen);
             }
             catch (Exception exception)
             {
@@ -503,13 +511,30 @@ namespace Proje3
                 Location = new Point(815, 20)
             };
 
+            _buttonLanguageToggle = new Button
+            {
+                Text = "🌐 EN",
+                Width = 90,
+                Height = 36,
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Location = new Point(_panelTopControls.Width - 110, 12),
+                BackColor = Color.FromArgb(45, 45, 50),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
+            _buttonLanguageToggle.FlatAppearance.BorderColor = Color.FromArgb(70, 70, 75);
+            _buttonLanguageToggle.Click += (sender, eventArgs) => ToggleLanguage();
+
             _panelTopControls.Controls.AddRange(new Control[]
             {
                 _labelApplicationTitle,
                 _buttonSelectJson,
                 _buttonConvert,
                 _buttonResetDatabase,
-                _labelFileStatus
+                _labelFileStatus,
+                _buttonLanguageToggle
             });
 
             _splitContainerMain = new SplitContainer
@@ -662,6 +687,50 @@ namespace Proje3
                     ButtonRunQuery_Click(sender, keyEventArgs);
                 }
             };
+        }
+
+        private void ToggleLanguage()
+        {
+            _isEnglish = !_isEnglish;
+
+            if (_isEnglish)
+            {
+                this.Text = "NoSQL → SQL Converter";
+                _labelApplicationTitle.Text = "NoSQL → SQL Converter";
+                _buttonSelectJson.Text = "Select JSON File";
+                _buttonConvert.Text = "Convert";
+                _buttonResetDatabase.Text = "Reset";
+                _labelJsonTreeHeader.Text = "  JSON STRUCTURE";
+                _labelSqlLogHeader.Text = "  SQL LOG";
+                _labelQueryHeader.Text = "SQL QUERY:";
+                _buttonExecuteQuery.Text = "Execute";
+                _buttonLanguageToggle.Text = "🌐 TR";
+
+                if (_labelFileStatus.Text == "Dosya seçilmedi")
+                    _labelFileStatus.Text = "No file selected";
+
+                var queryTab = _tabControlTables.TabPages["tabQueryResult"];
+                if (queryTab != null) queryTab.Text = "Query Result";
+            }
+            else
+            {
+                this.Text = "NoSQL → SQL Dönüştürücü";
+                _labelApplicationTitle.Text = "NoSQL → SQL Dönüştürücü";
+                _buttonSelectJson.Text = "JSON Dosyası Seç";
+                _buttonConvert.Text = "Dönüştür";
+                _buttonResetDatabase.Text = "Sıfırla";
+                _labelJsonTreeHeader.Text = "  JSON YAPISI";
+                _labelSqlLogHeader.Text = "  SQL LOG";
+                _labelQueryHeader.Text = "SQL SORGUSU:";
+                _buttonExecuteQuery.Text = "Çalıştır";
+                _buttonLanguageToggle.Text = "🌐 EN";
+
+                if (_labelFileStatus.Text == "No file selected")
+                    _labelFileStatus.Text = "Dosya seçilmedi";
+
+                var queryTab = _tabControlTables.TabPages["tabQueryResult"];
+                if (queryTab != null) queryTab.Text = "Sorgu Sonucu";
+            }
         }
 
         protected override void OnFormClosed(FormClosedEventArgs eventArgs)
