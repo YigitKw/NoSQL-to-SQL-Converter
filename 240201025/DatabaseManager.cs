@@ -177,12 +177,17 @@ namespace Proje3
                 droppedTableStatements.Add(dropTableSql);
             }
 
-            foreach (var cachedCommand in _preparedInsertCommands.Values)
-                cachedCommand.Dispose();
-            _preparedInsertCommands.Clear();
+            ClearPreparedCommands();
 
             ExecuteNonQuery("PRAGMA foreign_keys = ON;");
             return droppedTableStatements;
+        }
+
+        public void ClearPreparedCommands()
+        {
+            foreach (var cachedCommand in _preparedInsertCommands.Values)
+                cachedCommand.Dispose();
+            _preparedInsertCommands.Clear();
         }
 
         public string ExecuteNonQuery(string nonQuerySql)

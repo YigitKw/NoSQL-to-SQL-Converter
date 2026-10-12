@@ -93,6 +93,7 @@ namespace Proje3
             Cursor = Cursors.WaitCursor;
 
             _treeViewJsonStructure.Nodes.Clear();
+            JToken? loadedToken = null;
             try
             {
                 var (rootToken, rootTreeNode) = await Task.Run(() =>
@@ -103,6 +104,7 @@ namespace Proje3
                     return (parsedToken, treeNode);
                 });
 
+                loadedToken = rootToken;
                 BuildTreeNode(rootToken, rootTreeNode);
                 _treeViewJsonStructure.Nodes.Add(rootTreeNode);
                 rootTreeNode.Expand();
@@ -118,7 +120,7 @@ namespace Proje3
 
             try
             {
-                var parsingResult = await Task.Run(() => JsonParser.Parse(selectedFilePath));
+                var parsingResult = await Task.Run(() => JsonParser.ParseToken(loadedToken!, Path.GetFileNameWithoutExtension(selectedFilePath)));
                 _tableSchemas = parsingResult.schemas;
                 _extractedRecords = parsingResult.records;
 
@@ -150,6 +152,7 @@ namespace Proje3
 
             try
             {
+                _databaseManager.ClearPreparedCommands();
                 Log("\n[AŞAMA 1] CREATE TABLE sorguları:", Color.Yellow);
                 foreach (var tableSchema in _tableSchemas)
                 {
@@ -264,18 +267,35 @@ namespace Proje3
 
             try
             {
-                string normalizedQuery = rawQueryText.TrimStart().ToUpper();
-                if (normalizedQuery.StartsWith("SELECT"))
+                string cleanQuery = string.Join("\n", rawQueryText.Split('\n')
+                    .Select(line => line.Trim())
+                    .Where(line => !line.StartsWith("--")));
+                string normalizedQuery = cleanQuery.TrimStart().ToUpperInvariant();
+                bool isSelectQuery = normalizedQuery.StartsWith("SELECT")
+                    || normalizedQuery.StartsWith("WITH")
+                    || normalizedQuery.StartsWith("PRAGMA")
+                    || normalizedQuery.StartsWith("EXPLAIN");
+
+                if (isSelectQuery)
                 {
                     DataTable queryResultTable = _databaseManager.ExecuteQuery(rawQueryText);
                     Log($"[OK] {queryResultTable.Rows.Count} satır döndü.", Color.LimeGreen);
 
-                    string dynamicTabTitle = $"Sorgu ({DateTime.Now:HH:mm:ss})";
-                    var queryResultTabPage = new TabPage(dynamicTabTitle);
-                    var queryResultGrid = CreateStyledDataGrid();
+                    TabPage? queryResultTabPage = _tabControlTables.TabPages["tabQueryResult"];
+                    DataGridView queryResultGrid;
+                    if (queryResultTabPage == null)
+                    {
+                        queryResultTabPage = new TabPage("Sorgu Sonucu") { Name = "tabQueryResult" };
+                        queryResultGrid = CreateStyledDataGrid();
+                        queryResultTabPage.Controls.Add(queryResultGrid);
+                        _tabControlTables.TabPages.Add(queryResultTabPage);
+                    }
+                    else
+                    {
+                        queryResultGrid = (DataGridView)queryResultTabPage.Controls[0];
+                    }
+
                     queryResultGrid.DataSource = queryResultTable;
-                    queryResultTabPage.Controls.Add(queryResultGrid);
-                    _tabControlTables.TabPages.Add(queryResultTabPage);
                     _tabControlTables.SelectedTab = queryResultTabPage;
                 }
                 else
@@ -339,7 +359,9 @@ namespace Proje3
                     break;
 
                 case JArray jsonArray:
-                    for (int elementIndex = 0; elementIndex < jsonArray.Count; elementIndex++)
+                    const int previewLimit = 50;
+                    int displayCount = Math.Min(jsonArray.Count, previewLimit);
+                    for (int elementIndex = 0; elementIndex < displayCount; elementIndex++)
                     {
                         var arrayElement = jsonArray[elementIndex];
                         string elementLabel = arrayElement is JObject || arrayElement is JArray
@@ -349,6 +371,10 @@ namespace Proje3
                         parentNode.Nodes.Add(elementNode);
                         if (arrayElement is JObject || arrayElement is JArray)
                             BuildTreeNode(arrayElement, elementNode);
+                    }
+                    if (jsonArray.Count > previewLimit)
+                    {
+                        parentNode.Nodes.Add(new TreeNode($"... ({jsonArray.Count - previewLimit} kayıt daha var)"));
                     }
                     break;
             }

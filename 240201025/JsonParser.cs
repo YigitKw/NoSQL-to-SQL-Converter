@@ -32,7 +32,12 @@ namespace Proje3
         {
             string jsonContent = File.ReadAllText(filePath);
             JToken rootToken = JToken.Parse(jsonContent);
-            string rootTableName = SanitizeIdentifier(Path.GetFileNameWithoutExtension(filePath));
+            return ParseToken(rootToken, Path.GetFileNameWithoutExtension(filePath));
+        }
+
+        public static (List<TableSchema> schemas, List<FlatRecord> records) ParseToken(JToken rootToken, string rawTableName)
+        {
+            string rootTableName = SanitizeIdentifier(rawTableName);
 
             // 1. Geçiş: Şemaları ve kolon tiplerini baştan sona tara
             var schemaRegistry = new Dictionary<string, TableSchema>();
@@ -346,7 +351,7 @@ namespace Proje3
             if (sanitizedIdentifier.Length > 0 && char.IsDigit(sanitizedIdentifier[0]))
                 sanitizedIdentifier = $"t_{sanitizedIdentifier}";
 
-            return sanitizedIdentifier.Length == 0 ? "field" : sanitizedIdentifier.ToLower();
+            return sanitizedIdentifier.Length == 0 ? "field" : sanitizedIdentifier.ToLowerInvariant();
         }
     }
 }
