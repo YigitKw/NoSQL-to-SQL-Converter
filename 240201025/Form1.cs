@@ -92,6 +92,7 @@ namespace Proje3
             string selectedFilePath = fileDialog.FileName;
             _labelFileStatus.Text = Path.GetFileName(selectedFilePath);
             _buttonSelectJson.Enabled = false;
+            _buttonResetDatabase.Enabled = false;
             Cursor = Cursors.WaitCursor;
 
             _treeViewJsonStructure.Nodes.Clear();
@@ -116,6 +117,7 @@ namespace Proje3
             {
                 Log($"[HATA] JSON okuma hatası: {exception.Message}", Color.OrangeRed);
                 _buttonSelectJson.Enabled = true;
+                _buttonResetDatabase.Enabled = true;
                 Cursor = Cursors.Default;
                 return;
             }
@@ -137,6 +139,7 @@ namespace Proje3
             finally
             {
                 _buttonSelectJson.Enabled = true;
+                _buttonResetDatabase.Enabled = true;
                 Cursor = Cursors.Default;
             }
         }
@@ -148,6 +151,7 @@ namespace Proje3
 
             _buttonConvert.Enabled = false;
             _buttonSelectJson.Enabled = false;
+            _buttonResetDatabase.Enabled = false;
             Cursor = Cursors.WaitCursor;
             Log("──────────────────────────────────", Color.Gray);
             Log("[BILGI] Dönüştürme başlıyor...", Color.Cyan);
@@ -196,6 +200,7 @@ namespace Proje3
             finally
             {
                 _buttonSelectJson.Enabled = true;
+                _buttonResetDatabase.Enabled = true;
                 Cursor = Cursors.Default;
             }
         }
@@ -662,6 +667,12 @@ namespace Proje3
                 _textBoxSqlEditor,
                 _buttonExecuteQuery
             });
+
+            panelQueryControls.Resize += (sender, eventArgs) =>
+            {
+                _buttonExecuteQuery.Left = panelQueryControls.ClientSize.Width - _buttonExecuteQuery.Width - 10;
+                _textBoxSqlEditor.Width = Math.Max(200, _buttonExecuteQuery.Left - _textBoxSqlEditor.Left - 10);
+            };
 
             _tabControlTables = new TabControl
             {

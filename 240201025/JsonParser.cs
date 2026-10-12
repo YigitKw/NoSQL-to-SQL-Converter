@@ -347,11 +347,13 @@ namespace Proje3
                     sanitizedBuilder.Append('_');
             }
 
-            string sanitizedIdentifier = sanitizedBuilder.ToString().Trim('_');
+            string sanitizedIdentifier = sanitizedBuilder.ToString().Trim('_').ToLowerInvariant();
             if (sanitizedIdentifier.Length > 0 && char.IsDigit(sanitizedIdentifier[0]))
                 sanitizedIdentifier = $"t_{sanitizedIdentifier}";
+            if (sanitizedIdentifier.StartsWith("sqlite_"))
+                sanitizedIdentifier = $"t_{sanitizedIdentifier}";
 
-            return sanitizedIdentifier.Length == 0 ? "field" : sanitizedIdentifier.ToLowerInvariant();
+            return sanitizedIdentifier.Length == 0 ? "field" : sanitizedIdentifier;
         }
     }
 }
