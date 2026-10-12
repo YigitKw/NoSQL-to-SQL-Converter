@@ -40,6 +40,8 @@ Ana arayüz; üst işlem paneli, solda JSON hiyerarşi ağacı, sol altta SQL i�
    - `SQL SORGUSU` kutusu; `SELECT`, ortak tablo ifadeleri (`WITH`), `PRAGMA` ve `EXPLAIN` sorgularını destekler. Çalıştırılan sorgu sonuçları `Sorgu Sonucu` sekmesine yönlendirilir.
 4. **Durum Sıfırlama:**
    - `Sıfırla` düğmesi, `DropAllTables` yordamıyla tüm kullanıcı tablolarını kaldırır ve yerel arabellekleri temizler.
+5. **Arayüz Dili Değiştirme:**
+   - Üst paneldeki `🌐 EN` / `🌐 TR` düğmesine tıklayarak tüm arayüz denetimlerini, panel başlıklarını ve bildirimleri uygulamayı yeniden başlatmadan Türkçe ve İngilizce arasında dönüştürebilirsiniz.
 
 ---
 
@@ -47,18 +49,18 @@ Ana arayüz; üst işlem paneli, solda JSON hiyerarşi ağacı, sol altta SQL i�
 
 Sistem mimarisinde tanımlanan temel parametreler ve gerekçeleri:
 
-### 1. Veritabanı Konumu ve Kalıcılık (`_databaseFilePath` — `Form1.cs`)
+### 1. Veritabanı Konumu ve Kalıcılık (`_databaseFilePath` in `Form1.cs`)
 * **Varsayılan Değer:** Uygulama çalışma dizininde `proje3.db`.
 * **Kalıcılık Politikası:** Uygulama, oturumlar arasında mevcut `proje3.db` dosyasını korur ve açılışta var olan tabloları yükler. Dosya mevcut değilse yeni bir veritabanı başlatılır.
 * **Şema Sıfırlama:** `Sıfırla` denetimi, tabloları `DROP TABLE` komutlarıyla siler.
 * **Yol Değişikliği:** Dosya yolu `InitializeNewDatabase` yordamı üzerinden yapılandırılabilir.
 
-### 2. INSERT Günlük Sınırı (`_persistedRecordLogCount` — `Form1.cs`)
+### 2. INSERT Günlük Sınırı (`_persistedRecordLogCount` in `Form1.cs`)
 * **Varsayılan Değer:** İlk 100 ekleme işlemi günlüğe yazılır; sonrakiler gizlenir.
 * **Gerekçe:** WinForms `RichTextBox` bileşenine yüksek frekansta metin eklenmesi kullanıcı arayüzü iş parçacığında mesaj kuyruğu darboğazına yol açar.
 * **Yapılandırma:** Eşik değeri `InsertRecordRecursive` içindeki `_persistedRecordLogCount <= 100` koşulundan değiştirilebilir.
 
-### 3. TreeView Düğüm Sınırlandırması (`previewLimit` — `Form1.cs`)
+### 3. TreeView Düğüm Sınırlandırması (`previewLimit` in `Form1.cs`)
 * **Varsayılan Değer:** Dizi seviyesi başına 50 eleman.
 * **Gerekçe:** `data.json` gibi 8.794 nesne içeren büyük veri setleri eksiksiz ayrıştırıldığında 300.000'den fazla `TreeNode` örneği üretir. Sınırlandırma, hiyerarşik görünürlüğü korurken yerel Windows tanıtıcı (handle) tahsisini dengeler.
 
@@ -78,9 +80,13 @@ Sistem mimarisinde tanımlanan temel parametreler ve gerekçeleri:
 * **Tasarım:** Birincil anahtarlar `_id` (otomatik artan tamsayı), yabancı anahtarlar `{ParentTable}__id` olarak adlandırılır.
 * **Gerekçe:** Sistem anahtarlarının çift alt çizgiyle ayrılması, girdi JSON verisindeki `id` veya `ID` gibi doğal alanlarla ad çakışmasını engeller.
 
-### 8. Izgara Önizleme Sınırı (`LIMIT 500` — `Form1.cs`)
+### 8. Izgara Önizleme Sınırı (`LIMIT 500` in `Form1.cs`)
 * **Varsayılan Değer:** Sekmelerdeki ızgara görünümleri her tablo için ilk 500 kaydı önizler.
 * **Gerekçe:** Çok yüksek hacimli veri setlerinin doğrudan `DataGridView` denetimine bağlanması yüksek GDI bellek tüketimine sebep olur. Toplam satır sayısı `SELECT COUNT(*)` ile günlüğe raporlanır ve verilerin tamamına SQL konsolundan erişilebilir.
+
+### 9. Çalışma Zamanı İki Dilli Arayüz Desteği (TR / EN)
+* **İşleyiş:** `ToggleLanguage()` yordamı üzerinden yönetilen tek tıkla arayüz dili geçişi.
+* **Tasarım:** Değerlendirme kriterlerine uyum amacıyla açılışta Türkçe varsayılan olarak korunur; kullanıcı eylemiyle tüm etkileşimli bileşenler, sistem uyarıları ve panel etiketleri çalışma zamanında anında İngilizceye çevrilir.
 
 ---
 

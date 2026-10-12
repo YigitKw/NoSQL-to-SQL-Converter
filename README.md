@@ -40,6 +40,8 @@ The interface consists of a top control bar, a hierarchical JSON tree on the lef
    - The `SQL SORGUSU` input supports `SELECT`, common table expressions (`WITH`), `PRAGMA`, and `EXPLAIN` statements. Executing a query routes output to a dedicated `Sorgu Sonucu` tab.
 4. **State Reset:**
    - Click `Sıfırla` (Reset) to drop all user tables via `DropAllTables` and clear local buffers for subsequent runs.
+5. **Interface Language Toggle:**
+   - Click the `🌐 EN` / `🌐 TR` button on the top control bar to switch all interface controls, headers, and dialog prompts between English and Turkish at runtime without an application restart.
 
 ---
 
@@ -81,6 +83,10 @@ Key configuration parameters and algorithmic constraints:
 ### 8. Grid Inspection Limiting (`LIMIT 500` in `Form1.cs`)
 * **Default Value:** Preview grids load up to 500 records per table.
 * **Rationale:** Direct data binding of multi-megabyte result sets to `DataGridView` components consumes substantial GDI resources. The total row count is logged separately via `SELECT COUNT(*)`, and unrestricted data remains queryable through the SQL console.
+
+### 9. Runtime Interface Localization (TR / EN)
+* **Mechanism:** Single-click UI language switching managed through `ToggleLanguage()`.
+* **Design:** Retains Turkish as the default startup locale to align with institutional evaluation criteria, while providing instantaneous runtime translation of all interactive components, dialog prompts, and operational logs to English.
 
 ---
 
