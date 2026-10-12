@@ -2,17 +2,17 @@
 
 **[🇹🇷 Türkçe](README.tr.md) | [🇬🇧 English](README.md)**
 
-Bu uygulama, herhangi bir JSON belgesini çözümleyip ilişkisel bir SQLite veritabanına aktaran Windows Forms masaüstü uygulamasıdır. İç içe nesneleri düzleştirerek ana tabloya ekler, dizi (liste) yapılarını ise 1:N ilişkili alt tablolara ayırarak birbirine bağlar.
+Hiyerarşik JSON belgelerini çözümleyip ilişkisel bir SQLite veritabanına aktaran Windows Forms masaüstü uygulamasıdır. Sistem, 1:1 iç içe nesneleri üst tablo sütunlarına düzleştirirken (flattening), 1:N dizi yapılarını yabancı anahtar (foreign key) kısıtlarıyla bağlanan bağımsız alt tablolara ayrıştırır.
 
 ---
 
 ## Kurulum ve Çalıştırma
 
-Bilgisayarınızda **.NET 9.0** yüklü olmalıdır.
+Uygulamanın derlenmesi ve çalıştırılması için **.NET 9.0 SDK** veya çalışma zamanı gereklidir.
 
 1. **Visual Studio ile:**
-   - `240201025/Proje3.sln` dosyasını Visual Studio ile açın.
-   - Üst bardaki **Başlat (F5)** butonuna tıklayarak çalıştırın.
+   - `240201025/Proje3.sln` çözüm dosyasını Visual Studio ile açın.
+   - **Başlat (F5)** düğmesiyle projeyi derleyip çalıştırın.
 
 2. **Komut Satırı ile:**
    ```bash
@@ -22,96 +22,111 @@ Bilgisayarınızda **.NET 9.0** yüklü olmalıdır.
 
 ---
 
-## Kullanım Adımları
+## Kullanım Yönergesi
 
-Uygulama açıldığında üstte butonlar, solda JSON ağacı ve SQL log alanı, sağda ise tablolar ve sorgu paneli yer alır.
+Ana arayüz; üst işlem paneli, solda JSON hiyerarşi ağacı, sol altta SQL işlem günlüğü, sağda ise ilişkisel tablo sekmeleri ile tümleşik SQL sorgu konsolundan oluşur.
 
-1. **JSON Seç:** Üst paneldeki `JSON Dosyası Seç` butonuna tıklayıp bir `.json` dosyası seçin.
-   - Sol üstteki `JSON Yapısı` ağacında dosyanın içeriği listelenir.
-   - `Dönüştür` butonu aktifleşir.
-2. **Dönüştür:** `Dönüştür` butonuna basın.
-   - Tablolar sırayla açılır (`CREATE TABLE`), veriler eklenir (`INSERT INTO`) ve sağ tarafta her tablo için birer sekme açılır.
-   - Sol alttaki `SQL LOG` alanından arka planda çalışan sorguları takip edebilirsiniz.
-3. **Tabloları ve Verileri İnceleme:**
-   - Sağdaki sekmelere tıklayarak eklenen satırları görebilirsiniz.
-   - Sağ üstteki `SQL SORGUSU` kutusuna sorgu yazıp `Çalıştır` diyerek sonuçları alttaki tabloda görebilirsiniz.
-4. **Sıfırlama:**
-   - Yeni bir dosya denemek veya veritabanını temizlemek isterseniz `Sıfırla` butonuna basabilirsiniz. Bu işlem tablolardaki verileri ve tabloları siler (`DropAllTables`), ekranı ilk haline getirir.
-
----
-
-## Parametreler ve Özelleştirme Rehberi
-
-Projede ihtiyaca göre değiştirilebilecek veya bilinçli olarak sabit bırakılmış ayarlar:
-
-### 1. Veritabanı Dosya Yolu ve Kalıcılık (`_databaseFilePath` — `Form1.cs`)
-* **Varsayılan Değer:** Uygulamanın çalıştığı dizinde `proje3.db`.
-* **Kalıcılık Davranışı:** Uygulama her açılışında önceki oturumdan kalan `proje3.db` dosyasını korur ve mevcut tabloları otomatik olarak arayüze yükler. Dosya yoksa sıfırdan oluşturulur.
-* **Veritabanını Sıfırlama:** Tabloları temizlemek ve veritabanını sıfırdan başlatmak için üst paneldeki `Sıfırla` butonu kullanılır.
-* **Dosya Yolunu Değiştirme:** `InitializeNewDatabase` metodundaki `_databaseFilePath` yolunu dilediğiniz bir dizine yönlendirebilirsiniz.
-
-### 2. INSERT Log Sınırı (`_persistedRecordLogCount` — `Form1.cs`)
-* **Varsayılan Değer:** İlk `100` kayıt loglanır, sonrakiler gizlenir.
-* **Neden Bu Değer Seçildi?:** Çok satırlı JSON dosyalarında her INSERT işlemini `RichTextBox` bileşenine yazdırmak arayüzü yavaşlatır.
-* **Nasıl Değiştirilir?:** `InsertRecordRecursive` fonksiyonundaki `_persistedRecordLogCount <= 100` koşulundaki sayıyı artırarak daha fazla sorguyu ekranda görebilirsiniz.
-
-### 3. SQLite Performans Ayarları (`DatabaseManager.cs`)
-* **Kullanılan Ayarlar:** `PRAGMA journal_mode = WAL;` ve `PRAGMA synchronous = NORMAL;`
-* **Neden Değiştirilmemeli?:** SQLite varsayılan kipinde her yazmada diski kilitler. WAL (Write-Ahead Logging) modu toplu kayıt eklerken disk yazma darboğazını önler. Dosya ağ sürücüsünde (SMB/ağ paylaşımı) değilse bu ayarların kalması en iyisidir.
-
-### 4. Sistem Anahtarları (`_id` ve `{ParentTable}__id`)
-* **Neden Değiştirilmemeli?:** JSON verinizin içinde doğal olarak `id`, `ID` gibi alanlar bulunabilir. Veritabanının ürettiği anahtarla JSON'daki alanların çakışmaması için sistem anahtarı `_id`, yabancı anahtar ise `__id` (çift alt çizgi) olarak ayrılmıştır.
-
-### 5. Grid Önizleme Sınırı (`LIMIT 500` — `Form1.cs`)
-* **Varsayılan Değer:** Arayüzdeki tablo sekmelerinde ilk `500` satır önizlenir. Toplam satır sayısı SQL log alanında raporlanır (`SELECT COUNT(*)`).
-* **Neden Bu Sınır Var?:** On binlerce satır içeren büyük tablolarda tüm kayıtların aynı anda WinForms `DataGridView` bileşenine yüklenmesi yüksek bellek tüketimine ve arayüz donmalarına yol açar. SQLite tablosunda verilerin tamamı eksiksiz saklanır.
-* **Tüm Verilere Erişme:** İlgili tablonun tüm satırlarına veya belirli aralıklarına sağ üstteki SQL sorgu editöründen sorgu çalıştırarak (örneğin `SELECT * FROM tablo WHERE ...`) erişebilirsiniz.
+1. **JSON Belgesi Seçimi:** Üst paneldeki `JSON Dosyası Seç` düğmesine tıklayarak bir `.json` dosyası seçin.
+   - Sol paneldeki ağaç bileşeni, belgenin yapısal hiyerarşisini listeler.
+   - 50 elemandan fazla öğe barındıran dizilerde, kullanıcı arayüzü iş parçacığının yanıt verebilirliğini korumak amacıyla ilk 50 düğüm listelenir ve kalan kayıt adedi özet etiketi olarak eklenir.
+   - Belge okunduğunda `Dönüştür` düğmesi etkinleşir.
+2. **Dönüştürme İşlemi:** `Dönüştür` düğmesine tıklayın.
+   - Sistem şema keşfini tamamlar, dinamik `CREATE TABLE` komutlarını yürütür ve açık bir işlem (transaction) bloğu içinde parametreli `INSERT INTO` sorgularıyla verileri aktarır.
+   - Yürütülen işlemler `SQL LOG` alanından gerçek zamanlı izlenebilir.
+3. **Veri İnceleme ve Sorgulama:**
+   - Sağdaki sekmeler, oluşturulan tabloları salt okunur veri ızgaralarında görüntüler.
+   - `SQL SORGUSU` kutusu; `SELECT`, ortak tablo ifadeleri (`WITH`), `PRAGMA` ve `EXPLAIN` sorgularını destekler. Çalıştırılan sorgu sonuçları `Sorgu Sonucu` sekmesine yönlendirilir.
+4. **Durum Sıfırlama:**
+   - `Sıfırla` düğmesi, `DropAllTables` yordamıyla tüm kullanıcı tablolarını kaldırır ve yerel arabellekleri temizler.
 
 ---
 
-## Teknik İnceleme ve Karmaşıklık Analizi
+## Mimari Parametreler ve Sistem Davranışları
 
-### Mimari Akış ve Kod Eşleşmesi
+Sistem mimarisinde tanımlanan temel parametreler ve gerekçeleri:
 
-| Aşama | Sorumlu Sınıf & Metot | Yapılan İşlem |
+### 1. Veritabanı Konumu ve Kalıcılık (`_databaseFilePath` — `Form1.cs`)
+* **Varsayılan Değer:** Uygulama çalışma dizininde `proje3.db`.
+* **Kalıcılık Politikası:** Uygulama, oturumlar arasında mevcut `proje3.db` dosyasını korur ve açılışta var olan tabloları yükler. Dosya mevcut değilse yeni bir veritabanı başlatılır.
+* **Şema Sıfırlama:** `Sıfırla` denetimi, tabloları `DROP TABLE` komutlarıyla siler.
+* **Yol Değişikliği:** Dosya yolu `InitializeNewDatabase` yordamı üzerinden yapılandırılabilir.
+
+### 2. INSERT Günlük Sınırı (`_persistedRecordLogCount` — `Form1.cs`)
+* **Varsayılan Değer:** İlk 100 ekleme işlemi günlüğe yazılır; sonrakiler gizlenir.
+* **Gerekçe:** WinForms `RichTextBox` bileşenine yüksek frekansta metin eklenmesi kullanıcı arayüzü iş parçacığında mesaj kuyruğu darboğazına yol açar.
+* **Yapılandırma:** Eşik değeri `InsertRecordRecursive` içindeki `_persistedRecordLogCount <= 100` koşulundan değiştirilebilir.
+
+### 3. TreeView Düğüm Sınırlandırması (`previewLimit` — `Form1.cs`)
+* **Varsayılan Değer:** Dizi seviyesi başına 50 eleman.
+* **Gerekçe:** `data.json` gibi 8.794 nesne içeren büyük veri setleri eksiksiz ayrıştırıldığında 300.000'den fazla `TreeNode` örneği üretir. Sınırlandırma, hiyerarşik görünürlüğü korurken yerel Windows tanıtıcı (handle) tahsisini dengeler.
+
+### 4. Hazırlanmış Komut Önbelleği Yönetimi (`DatabaseManager.cs`)
+* **İşleyiş:** INSERT komutları `_preparedInsertCommands` sözlüğünde önbelleğe alınır.
+* **Önbellek Temizleme:** Önbellek, `ClearPreparedCommands()` ile her dönüştürme döngüsü öncesinde temizlenir. Bu sayede veritabanı sıfırlanmadan art arda farklı şemaya sahip dosyalar işlendiğinde sütun atlanması engellenir.
+
+### 5. Kültürden Bağımsız Tanımlayıcı Normalizasyonu (`JsonParser.cs`)
+* **İşleyiş:** SQL tanımlayıcıları temizlenir ve `ToLowerInvariant()` ile küçük harfe dönüştürülür.
+* **Gerekçe:** Türkçe yerel ayarlarında standart `ToLower()` çağrısı noktasız 'ı' karakteri üretir. Bu durum SQLite'ın ASCII tabanlı büyük/küçük harf duyarsız sütun çözümleme mekanizmasında eşleşme hatalarını önler.
+
+### 6. SQLite Eşzamanlılık Ayarları (`DatabaseManager.cs`)
+* **Yapılandırma:** `PRAGMA journal_mode = WAL;` ve `PRAGMA synchronous = NORMAL;`
+* **Gerekçe:** SQLite varsayılan günlük kipinde yazma işlemleri sırasında dosya tanımlayıcısını kilitler. WAL (Write-Ahead Logging) kipi, okuma ve yazma işlemlerini ayrıştırarak toplu eklemeleri hızlandırır.
+
+### 7. Birincil ve Yabancı Anahtar Tanımlayıcıları
+* **Tasarım:** Birincil anahtarlar `_id` (otomatik artan tamsayı), yabancı anahtarlar `{ParentTable}__id` olarak adlandırılır.
+* **Gerekçe:** Sistem anahtarlarının çift alt çizgiyle ayrılması, girdi JSON verisindeki `id` veya `ID` gibi doğal alanlarla ad çakışmasını engeller.
+
+### 8. Izgara Önizleme Sınırı (`LIMIT 500` — `Form1.cs`)
+* **Varsayılan Değer:** Sekmelerdeki ızgara görünümleri her tablo için ilk 500 kaydı önizler.
+* **Gerekçe:** Çok yüksek hacimli veri setlerinin doğrudan `DataGridView` denetimine bağlanması yüksek GDI bellek tüketimine sebep olur. Toplam satır sayısı `SELECT COUNT(*)` ile günlüğe raporlanır ve verilerin tamamına SQL konsolundan erişilebilir.
+
+---
+
+## Teknik Aşamalar ve Karmaşıklık Analizi
+
+### Bileşen Mimarisi
+
+| İşlem Aşaması | Sorumlu Sınıf ve Metot | Yapılan İşlem |
 |---|---|---|
-| **Pass 1 (Şema Keşfi)** | `JsonParser.WalkForSchemas()` | Veri yazmadan tüm JSON dolaşılır. `EnsureColumn()` ve `PromoteType()` ile kolonlar ve veri tipleri belirlenir. |
-| **Pass 2 (Kayıt Üretimi)** | `JsonParser.ProcessObject()` | Kesinleşen şemalar üzerinden `FlatRecord` nesneleri üretilir. |
-| **Düzleştirme (Flattening)** | `JsonParser.FlattenObject()` | 1:1 iç içe nesneler ana tabloya `ebeveyn_cocuk` sütunu olarak bağlanır (gereksiz JOIN maliyetini önlemek için). |
-| **Normalizasyon (1NF & 2NF)** | `JsonParser.ProcessArray()` | 1:N diziler ana tablodan ayrılarak alt tabloya taşınır. Her tabloya otomatik `_id` ve `parent__id` bağlanır. |
-| **Önbellekli SQL Yazımı** | `DatabaseManager.InsertRecord()` | `_preparedInsertCommands` sözlüğü sayesinde her tablo için tek `SqliteCommand` derlenir, satırlar sadece parametreleri güncellenerek eklenir. |
+| **Geçiş 1: Şema Keşfi** | `JsonParser.WalkForSchemas()` | Veri tabanına yazma yapmadan JSON düğüm grafiğini dolaşır. `EnsureColumn()` ve `PromoteType()` ile tablo ilişkilerini, sütunları ve en geniş veri tiplerini belirler. |
+| **Geçiş 2: Kayıt Üretimi** | `JsonParser.ProcessObject()` | Kesinleşen şema kayıt defterine uygun `FlatRecord` varlıkları üretir. |
+| **Nesne Düzleştirme** | `JsonParser.FlattenObject()` | 1:1 iç içe nesne yapılarını üst tablodaki `ebeveyn_cocuk` sütunlarına düzleştirerek gereksiz ilişkisel birleştirme (JOIN) maliyetlerini ortadan kaldırır. |
+| **Dizi Normalizasyonu (1NF & 2NF)** | `JsonParser.ProcessArray()` | 1:N dizi koleksiyonlarını alt tablolara ayırır, otomatik artan `_id` birincil anahtarı ve üst tablo yabancı anahtarını (`parent__id`) atar. |
+| **Önbellekli Komut Yürütme** | `DatabaseManager.InsertRecord()` | Kayıt niteliklerini, açık işlem kapsamında derlenmiş `SqliteCommand` şablonlarına bağlayarak çalıştırır. |
 
 ### Zaman Karmaşıklığı (Time Complexity)
 
-JSON belgesindeki toplam düğüm sayısı **N**, oluşturulan ilişkisel satır sayısı **M** olsun:
+Girdi belgesindeki toplam JSON belirteci (token) sayısı **N**, üretilen ilişkisel kayıt sayısı **M** olsun:
 
-1. **Şema Keşfi (Pass 1):** Ağaçtaki her JSON düğümü bir kez ziyaret edilir -> O(N).
-2. **Kayıt Ayıklama (Pass 2):** Her düğüm değer üretimi için ikinci kez ziyaret edilir -> O(N).
-3. **Veritabanı Yazma:** Tek bir `Transaction` bloğu ve önbelleklenmiş `Prepared Statement` kullanımı sayesinde her satır ekleme işlemi amortize O(1) sürede gerçekleşir. Toplam yazma süresi -> O(M).
+1. **Şema Keşfi (Geçiş 1):** Her JSON belirteci bir kez ziyaret edilir: O(N).
+2. **Kayıt Ayıklama (Geçiş 2):** Belirteç değerleri tek bir dolaşımda ayıklanır: O(N).
+3. **Veritabanı Kalıcılığı:** Tek bir işlem bloğu içinde hazırlanan komut parametrelerinin güncellenmesi, satır başına amortize O(1) süre alır: O(M).
 
-> **Toplam Zaman Karmaşıklığı:** O(N + M) = O(N) (Doğrusal). Toplam süre dosyadaki eleman sayısıyla doğru orantılıdır.
+$$\text{Toplam Zaman Karmaşıklığı} = O(N + M) = O(N)$$
 
-### Bellek Karmaşıklığı (Space Complexity)
+Toplam çalışma süresi dosya boyutuyla doğrusal ölçeklenir.
 
-* **Bellek Tüketimi:** JSON ağacının tamamı `JToken.Parse` ile bellekte tutulduğu için bellek karmaşıklığı O(N)'dir.
-* **Şema Sözlüğü:** Şema meta verileri tablo ve sütun sayısıyla orantılıdır O(T * C); dosya boyutuna kıyasla oldukça küçüktür.
-* **Pratik Durum:** 15-20 MB boyutundaki bir JSON dosyası bellekte ortalama 60-90 MB yer tutar ve bellek sorunu yaşatmaz.
+### Alan Karmaşıklığı (Space Complexity)
+
+* **Bellek Kullanımı:** JSON modeli bellekte `JToken` yapısında tutulur ve O(N) ek alan gerektirir. `ParseToken` ile tek geçişli bellek kullanımı, kopya nesne oluşumunu önler.
+* **Şema Üstverisi:** Şema sözlüğü, O(T \times C) oranında üstveri saklar (T tablo sayısı, C sütun sayısıdır). Bu alan veri hacmine kıyasla ihmal edilebilir düzeydedir.
+* **Ampirik Gözlem:** 14 MB boyutundaki bir belge (`data.json`), çözümleme sırasında yaklaşık 60 ile 90 MB işlem belleği tüketir.
 
 ---
 
-## Test Verileri (`240201025/Samples/`)
+## Kıyaslama Veri Setleri (`240201025/Samples/`)
 
-Projeyi test etmek için `240201025/Samples` klasöründe 4 farklı JSON dosyası bulunuyor:
+`240201025/Samples` dizini dört farklı test yapılandırması içerir:
 
-* `simple.json`: Tek seviyeli, temel alanları içeren basit yapı.
-* `nested.json`: İç içe geçmiş nesneler ve ürün dizisi içeren sipariş modeli.
-* `complex.json`: Fakülte, öğretim üyeleri, dersler ve öğrenciler gibi çok katmanlı yapı.
-* `data.json`: ~14 MB boyutunda, 8.000'den fazla mobil cihaz kaydı ve iç içe geçmiş teknik özellik (`specs`) nesneleri barındıran gerçek büyük veri seti (toplu ekleme performansı ve düzleştirme testi için).
+* `simple.json`: Temel skaler değerlere sahip tek seviyeli nesne modeli.
+* `nested.json`: İç içe geçmiş nitelikler ve sipariş kalemleri dizisi barındıran çok seviyeli model.
+* `complex.json`: Fakülteler, öğretim üyeleri, ders programları ve öğrenci kayıtlarını kapsayan derin hiyerarşik üniversite veri modeli.
+* `data.json`: Bellek yönetimi, düzleştirme ve toplu ekleme testleri için kullanılan büyük ölçekli kıyaslama veri seti (14,3 MB, 8.794 mobil cihaz kaydı ve derin `specs` nesneleri).
 
 ---
 
 ## Bağımlılıklar
 
 * [.NET 9.0](https://dotnet.microsoft.com/)
-* [Newtonsoft.Json (13.0.4)](https://www.nuget.org/packages/Newtonsoft.Json/) — JSON ayrıştırma
-* [Microsoft.Data.Sqlite (10.0.8)](https://www.nuget.org/packages/Microsoft.Data.Sqlite/) — SQLite veritabanı kütüphanesi
+* [Newtonsoft.Json (13.0.4)](https://www.nuget.org/packages/Newtonsoft.Json/): JSON belirteç dolaşımı ve serileştirme.
+* [Microsoft.Data.Sqlite (10.0.8)](https://www.nuget.org/packages/Microsoft.Data.Sqlite/): SQLite veritabanı sürücüsü.
