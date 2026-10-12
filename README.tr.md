@@ -4,6 +4,8 @@
 
 Hiyerarşik JSON belgelerini çözümleyip ilişkisel bir SQLite veritabanına aktaran Windows Forms masaüstü uygulamasıdır. Sistem, 1:1 iç içe nesneleri üst tablo sütunlarına düzleştirirken (flattening), 1:N dizi yapılarını yabancı anahtar (foreign key) kısıtlarıyla bağlanan bağımsız alt tablolara ayrıştırır.
 
+![Uygulama Arayüzü](docs/screenshot.png)
+
 ---
 
 ## Kurulum ve Çalıştırma
