@@ -71,11 +71,11 @@ namespace Proje3
 
             if (isNewDatabase)
             {
-                Log($"[OK] Yeni veritabanı oluşturuldu: {_databaseFilePath}", Color.LimeGreen);
+                Log(_isEnglish ? $"[OK] New database created: {_databaseFilePath}" : $"[OK] Yeni veritabanı oluşturuldu: {_databaseFilePath}", Color.LimeGreen);
             }
             else
             {
-                Log($"[OK] Mevcut veritabanı bağlandı: {_databaseFilePath}", Color.LimeGreen);
+                Log(_isEnglish ? $"[OK] Connected to existing database: {_databaseFilePath}" : $"[OK] Mevcut veritabanı bağlandı: {_databaseFilePath}", Color.LimeGreen);
                 RefreshTableTabs();
             }
         }
@@ -111,11 +111,11 @@ namespace Proje3
                 BuildTreeNode(rootToken, rootTreeNode);
                 _treeViewJsonStructure.Nodes.Add(rootTreeNode);
                 rootTreeNode.Expand();
-                Log($"[OK] JSON yüklendi: {selectedFilePath}", Color.LimeGreen);
+                Log(_isEnglish ? $"[OK] JSON loaded: {selectedFilePath}" : $"[OK] JSON yüklendi: {selectedFilePath}", Color.LimeGreen);
             }
             catch (Exception exception)
             {
-                Log($"[HATA] JSON okuma hatası: {exception.Message}", Color.OrangeRed);
+                Log(_isEnglish ? $"[ERROR] JSON read error: {exception.Message}" : $"[HATA] JSON okuma hatası: {exception.Message}", Color.OrangeRed);
                 _buttonSelectJson.Enabled = true;
                 _buttonResetDatabase.Enabled = true;
                 Cursor = Cursors.Default;
@@ -128,13 +128,13 @@ namespace Proje3
                 _tableSchemas = parsingResult.schemas;
                 _extractedRecords = parsingResult.records;
 
-                Log($"[OK] {_tableSchemas.Count} tablo şeması belirlendi.", Color.LimeGreen);
+                Log(_isEnglish ? $"[OK] {_tableSchemas.Count} table schema(s) identified." : $"[OK] {_tableSchemas.Count} tablo şeması belirlendi.", Color.LimeGreen);
                 _buttonConvert.Enabled = true;
                 _buttonConvert.Tag = selectedFilePath;
             }
             catch (Exception exception)
             {
-                Log($"[HATA] Parse hatası: {exception.Message}", Color.OrangeRed);
+                Log(_isEnglish ? $"[ERROR] Parse error: {exception.Message}" : $"[HATA] Parse hatası: {exception.Message}", Color.OrangeRed);
             }
             finally
             {
@@ -154,19 +154,19 @@ namespace Proje3
             _buttonResetDatabase.Enabled = false;
             Cursor = Cursors.WaitCursor;
             Log("──────────────────────────────────", Color.Gray);
-            Log("[BILGI] Dönüştürme başlıyor...", Color.Cyan);
+            Log(_isEnglish ? "[INFO] Conversion starting..." : "[BILGI] Dönüştürme başlıyor...", Color.Cyan);
 
             try
             {
                 _databaseManager.ClearPreparedCommands();
-                Log("\n[AŞAMA 1] CREATE TABLE sorguları:", Color.Yellow);
+                Log(_isEnglish ? "\n[STAGE 1] CREATE TABLE queries:" : "\n[AŞAMA 1] CREATE TABLE sorguları:", Color.Yellow);
                 foreach (var tableSchema in _tableSchemas)
                 {
                     string createTableSql = _databaseManager.CreateTable(tableSchema);
                     Log(createTableSql, Color.White);
                 }
 
-                Log("\n[AŞAMA 2] INSERT INTO sorguları:", Color.Yellow);
+                Log(_isEnglish ? "\n[STAGE 2] INSERT INTO queries:" : "\n[AŞAMA 2] INSERT INTO sorguları:", Color.Yellow);
                 var schemaDictionary = _tableSchemas.ToDictionary(schema => schema.TableName);
                 _persistedRecordLogCount = 0;
 
@@ -187,14 +187,14 @@ namespace Proje3
                     }
                 });
 
-                Log("\n[AŞAMA 3] SELECT sorguları ile sonuçlar:", Color.Yellow);
+                Log(_isEnglish ? "\n[STAGE 3] SELECT queries with results:" : "\n[AŞAMA 3] SELECT sorguları ile sonuçlar:", Color.Yellow);
                 RefreshTableTabs();
 
-                Log("\n[OK] Dönüştürme tamamlandı!", Color.LimeGreen);
+                Log(_isEnglish ? "\n[OK] Conversion completed!" : "\n[OK] Dönüştürme tamamlandı!", Color.LimeGreen);
             }
             catch (Exception exception)
             {
-                Log($"\n[HATA] {exception.Message}", Color.OrangeRed);
+                Log(_isEnglish ? $"\n[ERROR] {exception.Message}" : $"\n[HATA] {exception.Message}", Color.OrangeRed);
                 _buttonConvert.Enabled = true;
             }
             finally
@@ -220,7 +220,7 @@ namespace Proje3
             }
             else if (_persistedRecordLogCount == 101)
             {
-                Log("  ... (Kalan INSERT logları arayüz performansını korumak için gizlendi) ...", Color.Gray);
+                Log(_isEnglish ? "  ... (Remaining INSERT logs hidden to preserve UI performance) ..." : "  ... (Kalan INSERT logları arayüz performansını korumak için gizlendi) ...", Color.Gray);
             }
 
             foreach (var childRecord in record.Children)
@@ -245,9 +245,9 @@ namespace Proje3
                 DataTable tableData = _databaseManager.ExecuteQuery(previewQuery);
 
                 if (totalRowCount > 500)
-                    Log($"  Tablo '{currentTableName}': Toplam {totalRowCount} satır (Grid üzerinde ilk 500 satır önizleniyor)", Color.LightSkyBlue);
+                    Log(_isEnglish ? $"  Table '{currentTableName}': Total {totalRowCount} rows (First 500 rows previewed in Grid)" : $"  Tablo '{currentTableName}': Toplam {totalRowCount} satır (Grid üzerinde ilk 500 satır önizleniyor)", Color.LightSkyBlue);
                 else
-                    Log($"  Tablo '{currentTableName}': {totalRowCount} satır", Color.LightSkyBlue);
+                    Log(_isEnglish ? $"  Table '{currentTableName}': {totalRowCount} row(s)" : $"  Tablo '{currentTableName}': {totalRowCount} satır", Color.LightSkyBlue);
 
                 var tableTabPage = new TabPage(currentTableName);
                 var tableDataGrid = CreateStyledDataGrid();
@@ -273,7 +273,7 @@ namespace Proje3
             }
 
             Log("──────────────────────────────────", Color.Gray);
-            Log($"[BILGI] Sorgu çalıştırılıyor:\n  {rawQueryText}", Color.Cyan);
+            Log(_isEnglish ? $"[INFO] Executing query:\n  {rawQueryText}" : $"[BILGI] Sorgu çalıştırılıyor:\n  {rawQueryText}", Color.Cyan);
 
             try
             {
@@ -289,7 +289,7 @@ namespace Proje3
                 if (isSelectQuery)
                 {
                     DataTable queryResultTable = _databaseManager.ExecuteQuery(rawQueryText);
-                    Log($"[OK] {queryResultTable.Rows.Count} satır döndü.", Color.LimeGreen);
+                    Log(_isEnglish ? $"[OK] {queryResultTable.Rows.Count} row(s) returned." : $"[OK] {queryResultTable.Rows.Count} satır döndü.", Color.LimeGreen);
 
                     TabPage? queryResultTabPage = _tabControlTables.TabPages["tabQueryResult"];
                     DataGridView queryResultGrid;
@@ -312,13 +312,13 @@ namespace Proje3
                 else
                 {
                     _databaseManager.ExecuteNonQuery(rawQueryText);
-                    Log("[OK] Sorgu başarıyla çalıştırıldı.", Color.LimeGreen);
+                    Log(_isEnglish ? "[OK] Query executed successfully." : "[OK] Sorgu başarıyla çalıştırıldı.", Color.LimeGreen);
                     RefreshTableTabs();
                 }
             }
             catch (Exception exception)
             {
-                Log($"[HATA] SQL Hatası: {exception.Message}", Color.OrangeRed);
+                Log(_isEnglish ? $"[ERROR] SQL Error: {exception.Message}" : $"[HATA] SQL Hatası: {exception.Message}", Color.OrangeRed);
             }
         }
 
@@ -387,7 +387,7 @@ namespace Proje3
                     }
                     if (jsonArray.Count > previewLimit)
                     {
-                        parentNode.Nodes.Add(new TreeNode($"... ({jsonArray.Count - previewLimit} kayıt daha var)"));
+                        parentNode.Nodes.Add(new TreeNode(_isEnglish ? $"... ({jsonArray.Count - previewLimit} more items)" : $"... ({jsonArray.Count - previewLimit} kayıt daha var)"));
                     }
                     break;
             }
@@ -722,6 +722,8 @@ namespace Proje3
 
                 var queryTab = _tabControlTables.TabPages["tabQueryResult"];
                 if (queryTab != null) queryTab.Text = "Query Result";
+
+                Log("[INFO] Interface language switched to English.", Color.Cyan);
             }
             else
             {
@@ -741,6 +743,8 @@ namespace Proje3
 
                 var queryTab = _tabControlTables.TabPages["tabQueryResult"];
                 if (queryTab != null) queryTab.Text = "Sorgu Sonucu";
+
+                Log("[BILGI] Arayüz dili Türkçe olarak ayarlandı.", Color.Cyan);
             }
         }
 
