@@ -4,7 +4,7 @@
 
 A Windows Forms desktop application that converts hierarchical JSON documents into normalized relational SQLite tables. The system flattens 1:1 nested objects into parent table columns and maps 1:N arrays to separate child tables through foreign key constraints.
 
-![Application Interface](docs/screenshot.png)
+![Application Interface](docs/screenshot.en.png)
 
 ---
 
