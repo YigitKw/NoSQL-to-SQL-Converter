@@ -138,3 +138,9 @@ The `240201025/Samples` directory contains four test configurations:
 * [.NET 9.0](https://dotnet.microsoft.com/)
 * [Newtonsoft.Json (13.0.4)](https://www.nuget.org/packages/Newtonsoft.Json/): JSON token traversal and serialization.
 * [Microsoft.Data.Sqlite (10.0.8)](https://www.nuget.org/packages/Microsoft.Data.Sqlite/): SQLite database engine driver.
+
+---
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).

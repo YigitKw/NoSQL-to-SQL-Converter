@@ -138,3 +138,9 @@ Toplam çalışma süresi dosya boyutuyla doğrusal ölçeklenir.
 * [.NET 9.0](https://dotnet.microsoft.com/)
 * [Newtonsoft.Json (13.0.4)](https://www.nuget.org/packages/Newtonsoft.Json/): JSON belirteç dolaşımı ve serileştirme.
 * [Microsoft.Data.Sqlite (10.0.8)](https://www.nuget.org/packages/Microsoft.Data.Sqlite/): SQLite veritabanı sürücüsü.
+
+---
+
+## Lisans
+
+Bu proje [MIT Lisansı](LICENSE) kapsamında lisanslanmıştır.
